@@ -1,0 +1,236 @@
+:root {
+    --fundo: #12141c;
+    --superficie: #1c1f2b;
+    --borda: #2c3142;
+    --texto: #e8eaf0;
+    --texto-suave: #9aa1b5;
+    --destaque: #7c5cff;
+    --destaque-hover: #6846f0;
+    --sucesso: #3ecf8e;
+    --erro: #ff5c7a;
+    --nota-alta: #3ecf8e;
+    --nota-media: #f5c542;
+    --nota-baixa: #ff5c7a;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--fundo);
+    color: var(--texto);
+    line-height: 1.5;
+}
+
+/* cabeçalho */
+
+.cabecalho {
+    padding: 2.5rem 1rem 1.5rem;
+    text-align: center;
+}
+
+.cabecalho h1 {
+    margin: 0 0 1.5rem;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+}
+
+.form-adicionar {
+    display: flex;
+    gap: 0.5rem;
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+.form-adicionar input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    background: var(--superficie);
+    color: var(--texto);
+    font-size: 1rem;
+}
+
+.form-adicionar input:focus {
+    outline: 2px solid var(--destaque);
+    outline-offset: 1px;
+}
+
+.form-adicionar button {
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: 8px;
+    background: var(--destaque);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.form-adicionar button:hover {
+    background: var(--destaque-hover);
+}
+
+.form-adicionar button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.mensagem {
+    margin: 1rem 0 0;
+    font-weight: 500;
+}
+
+.mensagem.sucesso {
+    color: var(--sucesso);
+}
+
+.mensagem.erro {
+    color: var(--erro);
+}
+
+.aviso {
+    text-align: center;
+    color: var(--texto-suave);
+}
+
+/* lista de jogos */
+
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem 3rem;
+}
+
+.lista-jogos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    background: var(--superficie);
+    border: 1px solid var(--borda);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.15s, border-color 0.15s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    border-color: var(--destaque);
+}
+
+.card-poster {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: var(--borda);
+}
+
+.card-corpo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1rem;
+}
+
+.card-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.card-titulo {
+    margin: 0;
+    font-size: 1.15rem;
+}
+
+.card-nota {
+    flex-shrink: 0;
+    padding: 0.15rem 0.5rem;
+    border: 2px solid currentColor;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.card-nota.alta { color: var(--nota-alta); }
+.card-nota.media { color: var(--nota-media); }
+.card-nota.baixa { color: var(--nota-baixa); }
+.card-nota.sem-nota { color: var(--texto-suave); }
+
+.card-info {
+    margin: 0;
+    color: var(--texto-suave);
+    font-size: 0.9rem;
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tag {
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    background: var(--borda);
+    font-size: 0.78rem;
+}
+
+.tag.genero {
+    background: rgba(124, 92, 255, 0.2);
+    color: #c7b8ff;
+}
+
+.botao-excluir {
+    align-self: flex-end;
+    /* empurra o botão para o fim do card, independente do tamanho do conteúdo */
+    margin-top: auto;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--erro);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--erro);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.botao-excluir:hover {
+    background: var(--erro);
+    color: #fff;
+}
+
+.botao-excluir:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* acessibilidade: esconde visualmente mas mantém para leitores de tela */
+.visualmente-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+    .form-adicionar {
+        flex-direction: column;
+    }
+}

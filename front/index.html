@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Biblioteca de Jogos</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script type="module" src="js/main.js"></script>
+</head>
+<body>
+    <header class="cabecalho">
+        <h1>Minha Biblioteca de Jogos</h1>
+
+        <form id="form-adicionar" class="form-adicionar">
+            <label for="campo-nome" class="visualmente-oculto">Nome do jogo</label>
+            <input type="text" id="campo-nome" placeholder="Digite o nome de um jogo (ex.: the witcher 3)" required>
+            <button type="submit" id="botao-adicionar">Adicionar</button>
+        </form>
+
+        <p id="mensagem" class="mensagem" role="status" hidden></p>
+    </header>
+
+    <main>
+        <p id="carregando" class="aviso">Carregando jogos...</p>
+        <p id="vazio" class="aviso" hidden>Nenhum jogo cadastrado ainda. Adicione o primeiro acima!</p>
+        <section id="lista-jogos" class="lista-jogos" aria-label="Jogos cadastrados"></section>
+    </main>
+</body>
+</html>

@@ -18,6 +18,19 @@ public class Jogos {
     private String data;
     private Integer avaliacao;
     private String poster;
+    // ficam nulos até o usuário informar o progresso (e em jogos cadastrados antes dessa funcionalidade)
+    @Enumerated(EnumType.STRING)
+    private StatusJogo status;
+    private Integer horasJogadas;
+    private LocalDate dataInicio;
+    private LocalDate dataTermino;
+    // identificador do jogo na RAWG, usado para buscar descrição, screenshots e trailer
+    private String slug;
+    private Integer tempoMedio;
+    private Integer notaPessoal;
+    @Column(length = 500)
+    private String comentario;
+    private String plataformaJogada;
 
     @ManyToMany
     @JoinTable(
@@ -89,6 +102,78 @@ public class Jogos {
 
     public void setPoster(String poster) {
         this.poster = poster;
+    }
+
+    public StatusJogo getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusJogo status) {
+        this.status = status;
+    }
+
+    public Integer getHorasJogadas() {
+        return horasJogadas;
+    }
+
+    public void setHorasJogadas(Integer horasJogadas) {
+        this.horasJogadas = horasJogadas;
+    }
+
+    public LocalDate getDataInicio() {
+        return dataInicio;
+    }
+
+    public void setDataInicio(LocalDate dataInicio) {
+        this.dataInicio = dataInicio;
+    }
+
+    public LocalDate getDataTermino() {
+        return dataTermino;
+    }
+
+    public void setDataTermino(LocalDate dataTermino) {
+        this.dataTermino = dataTermino;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+
+    public Integer getTempoMedio() {
+        return tempoMedio;
+    }
+
+    public void setTempoMedio(Integer tempoMedio) {
+        this.tempoMedio = tempoMedio;
+    }
+
+    public Integer getNotaPessoal() {
+        return notaPessoal;
+    }
+
+    public void setNotaPessoal(Integer notaPessoal) {
+        this.notaPessoal = notaPessoal;
+    }
+
+    public String getComentario() {
+        return comentario;
+    }
+
+    public void setComentario(String comentario) {
+        this.comentario = comentario;
+    }
+
+    public String getPlataformaJogada() {
+        return plataformaJogada;
+    }
+
+    public void setPlataformaJogada(String plataformaJogada) {
+        this.plataformaJogada = plataformaJogada;
     }
 
     public List<Dev> getDevs() {

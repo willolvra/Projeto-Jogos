@@ -4,26 +4,247 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minha Biblioteca de Jogos</title>
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <link rel="apple-touch-icon" href="img/icone.png">
     <link rel="stylesheet" href="css/style.css">
     <script type="module" src="js/main.js"></script>
 </head>
 <body>
     <header class="cabecalho">
-        <h1>Minha Biblioteca de Jogos</h1>
+        <div class="cabecalho-conteudo">
+            <a href="#biblioteca" class="marca">
+                <img src="img/icone.png" class="marca-icone" alt="" width="36" height="36">
+                <span>Biblioteca de Jogos</span>
+            </a>
 
-        <form id="form-adicionar" class="form-adicionar">
-            <label for="campo-nome" class="visualmente-oculto">Nome do jogo</label>
-            <input type="text" id="campo-nome" placeholder="Digite o nome de um jogo (ex.: the witcher 3)" required>
-            <button type="submit" id="botao-adicionar">Adicionar</button>
-        </form>
-
-        <p id="mensagem" class="mensagem" role="status" hidden></p>
+            <nav class="navegacao" aria-label="Navegação principal">
+                <a href="#biblioteca" data-pagina="biblioteca">Biblioteca</a>
+                <a href="#estatisticas" data-pagina="estatisticas">Estatísticas</a>
+                <a href="#retrospectiva" data-pagina="retrospectiva">Retrospectiva</a>
+                <span class="contador" id="contador" title="Jogos cadastrados">0 jogos</span>
+            </nav>
+        </div>
     </header>
 
     <main>
-        <p id="carregando" class="aviso">Carregando jogos...</p>
-        <p id="vazio" class="aviso" hidden>Nenhum jogo cadastrado ainda. Adicione o primeiro acima!</p>
-        <section id="lista-jogos" class="lista-jogos" aria-label="Jogos cadastrados"></section>
+        <!-- as páginas trocam pelo endereço (#biblioteca, #estatisticas, #retrospectiva) sem recarregar -->
+        <div id="pagina-biblioteca" class="pagina">
+            <section class="destaque">
+                <h1>Sua coleção, num só lugar</h1>
+                <p class="destaque-subtitulo">
+                    Digite o nome de um jogo e buscamos capa, nota, gêneros e plataformas automaticamente.
+                </p>
+
+                <form id="form-adicionar" class="form-adicionar">
+                    <div class="campo-sugestoes">
+                        <label for="campo-nome" class="visualmente-oculto">Nome do jogo</label>
+                        <input type="text" id="campo-nome" placeholder="Ex.: the witcher 3" required
+                               autocomplete="off" role="combobox" aria-autocomplete="list"
+                               aria-expanded="false" aria-controls="lista-sugestoes">
+                        <ul id="lista-sugestoes" class="lista-sugestoes" role="listbox" aria-label="Sugestões de jogos" hidden></ul>
+                    </div>
+                    <button type="submit" id="botao-adicionar">Adicionar</button>
+                </form>
+
+                <p id="mensagem" class="mensagem" role="status" hidden></p>
+            </section>
+
+            <section class="biblioteca" aria-labelledby="titulo-biblioteca">
+                <div class="barra-ferramentas">
+                    <h2 id="titulo-biblioteca">Meus jogos</h2>
+
+                    <div class="filtros">
+                        <label for="campo-busca" class="visualmente-oculto">Filtrar jogos</label>
+                        <input type="search" id="campo-busca" placeholder="Filtrar por nome, gênero ou plataforma">
+
+                        <label for="campo-ordem" class="visualmente-oculto">Ordenar por</label>
+                        <select id="campo-ordem">
+                            <option value="recentes">Mais recentes</option>
+                            <option value="nome">Nome (A–Z)</option>
+                            <option value="nota">Maior nota (Metacritic)</option>
+                            <option value="minhaNota">Minha nota</option>
+                            <option value="horas">Mais horas jogadas</option>
+                            <option value="lancamento">Lançamento</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filtro-status" role="group" aria-label="Filtrar por status">
+                    <button type="button" class="chip" data-status="" aria-pressed="true">
+                        Todos <span class="chip-contagem"></span>
+                    </button>
+                    <button type="button" class="chip" data-status="QUERO_JOGAR" aria-pressed="false">
+                        🎯 Quero jogar <span class="chip-contagem"></span>
+                    </button>
+                    <button type="button" class="chip" data-status="JOGANDO" aria-pressed="false">
+                        🎮 Jogando <span class="chip-contagem"></span>
+                    </button>
+                    <button type="button" class="chip" data-status="ZERADO" aria-pressed="false">
+                        🏆 Zerado <span class="chip-contagem"></span>
+                    </button>
+                    <button type="button" class="chip" data-status="ABANDONADO" aria-pressed="false">
+                        💤 Abandonado <span class="chip-contagem"></span>
+                    </button>
+                    <button type="button" class="chip" data-status="SEM_STATUS" aria-pressed="false" hidden>
+                        Sem status <span class="chip-contagem"></span>
+                    </button>
+                </div>
+
+                <p id="vazio" class="aviso" hidden>Nenhum jogo cadastrado ainda. Adicione o primeiro acima!</p>
+                <p id="sem-resultado" class="aviso" hidden>Nenhum jogo corresponde ao filtro.</p>
+                <div id="lista-jogos" class="lista-jogos" aria-busy="true"></div>
+            </section>
+        </div>
+
+        <section id="pagina-estatisticas" class="pagina" aria-labelledby="titulo-estatisticas" hidden>
+            <div class="cabecalho-pagina">
+                <h1 id="titulo-estatisticas">Estatísticas</h1>
+                <p class="destaque-subtitulo">Um resumo de tudo o que está na sua biblioteca.</p>
+            </div>
+            <div id="conteudo-estatisticas"></div>
+        </section>
+
+        <section id="pagina-retrospectiva" class="pagina" aria-labelledby="titulo-retrospectiva" hidden>
+            <div class="cabecalho-pagina">
+                <h1 id="titulo-retrospectiva">Retrospectiva</h1>
+                <label for="campo-ano" class="visualmente-oculto">Ano da retrospectiva</label>
+                <select id="campo-ano" class="campo-ano"></select>
+            </div>
+            <div id="conteudo-retrospectiva"></div>
+        </section>
     </main>
+
+    <dialog id="modal-exclusao" class="modal" aria-labelledby="modal-titulo" aria-describedby="modal-texto">
+        <form method="dialog">
+            <div class="modal-icone" aria-hidden="true">🗑️</div>
+            <h2 id="modal-titulo">Excluir jogo?</h2>
+            <p id="modal-texto" class="modal-texto"></p>
+            <div class="modal-acoes">
+                <button type="submit" value="cancelar" class="botao-secundario" autofocus>Cancelar</button>
+                <button type="submit" value="confirmar" class="botao-perigo">Excluir</button>
+            </div>
+        </form>
+    </dialog>
+
+    <dialog id="modal-progresso" class="modal modal-progresso" aria-labelledby="progresso-titulo">
+        <form id="form-progresso">
+            <img id="progresso-poster" class="progresso-poster" alt="">
+            <p id="progresso-subtitulo" class="progresso-subtitulo"></p>
+            <h2 id="progresso-titulo"></h2>
+
+            <fieldset class="opcoes-status">
+                <legend>Qual é a sua situação com esse jogo?</legend>
+                <label class="opcao-status">
+                    <input type="radio" name="status" value="QUERO_JOGAR" required>
+                    <span class="opcao-icone" aria-hidden="true">🎯</span>
+                    <span>Quero jogar</span>
+                </label>
+                <label class="opcao-status">
+                    <input type="radio" name="status" value="JOGANDO">
+                    <span class="opcao-icone" aria-hidden="true">🎮</span>
+                    <span>Jogando</span>
+                </label>
+                <label class="opcao-status">
+                    <input type="radio" name="status" value="ZERADO">
+                    <span class="opcao-icone" aria-hidden="true">🏆</span>
+                    <span>Zerado</span>
+                </label>
+                <label class="opcao-status">
+                    <input type="radio" name="status" value="ABANDONADO">
+                    <span class="opcao-icone" aria-hidden="true">💤</span>
+                    <span>Abandonado</span>
+                </label>
+            </fieldset>
+
+            <div id="grupo-plataforma" class="grupo-campo">
+                <label for="campo-plataforma" class="rotulo-campo">Onde você joga</label>
+                <select id="campo-plataforma" name="plataformaJogada" class="campo-texto"></select>
+            </div>
+
+            <div id="grupo-horas" class="grupo-campo">
+                <label for="campo-horas" class="rotulo-campo">Horas jogadas</label>
+                <div class="seletor-horas">
+                    <button type="button" class="botao-passo" data-passo="-1" aria-label="Diminuir horas">−</button>
+                    <div class="valor-horas">
+                        <input type="number" id="campo-horas" name="horas" min="0" max="100000" step="1" required>
+                        <span aria-hidden="true">h</span>
+                    </div>
+                    <button type="button" class="botao-passo" data-passo="1" aria-label="Aumentar horas">+</button>
+                </div>
+                <p id="dica-tempo-medio" class="dica" hidden></p>
+            </div>
+
+            <div id="grupo-datas" class="grupo-datas">
+                <div id="grupo-inicio" class="grupo-campo">
+                    <label for="campo-inicio" class="rotulo-campo">Começou a jogar em</label>
+                    <input type="date" id="campo-inicio" name="dataInicio" class="campo-data">
+                </div>
+                <div id="grupo-termino" class="grupo-campo">
+                    <label for="campo-termino" id="rotulo-termino" class="rotulo-campo">Zerou em</label>
+                    <input type="date" id="campo-termino" name="dataTermino" class="campo-data">
+                </div>
+            </div>
+
+            <div id="grupo-avaliacao">
+                <fieldset class="grupo-campo opcoes-nota">
+                    <legend class="rotulo-campo">Sua nota <span class="opcional">(opcional)</span></legend>
+                    <div id="lista-notas" class="lista-notas"></div>
+                </fieldset>
+
+                <div class="grupo-campo">
+                    <label for="campo-comentario" class="rotulo-campo">
+                        O que achou? <span class="opcional">(opcional)</span>
+                    </label>
+                    <textarea id="campo-comentario" name="comentario" class="campo-texto" rows="3" maxlength="500"
+                              placeholder="Uma frase sobre o jogo..."></textarea>
+                </div>
+            </div>
+
+            <p id="progresso-erro" class="mensagem erro" role="alert" hidden></p>
+
+            <div class="modal-acoes">
+                <button type="button" id="botao-pular" class="botao-secundario">Agora não</button>
+                <button type="submit" id="botao-salvar-progresso" class="botao-primario">Salvar</button>
+            </div>
+        </form>
+    </dialog>
+
+    <dialog id="modal-detalhes" class="modal modal-detalhes" aria-labelledby="detalhes-titulo">
+        <div class="detalhes-capa" id="detalhes-capa">
+            <button type="button" class="botao-fechar" id="botao-fechar-detalhes" aria-label="Fechar">✕</button>
+            <div class="detalhes-capa-texto">
+                <h2 id="detalhes-titulo"></h2>
+                <p id="detalhes-subtitulo" class="detalhes-subtitulo"></p>
+            </div>
+        </div>
+        <div id="detalhes-corpo" class="detalhes-corpo"></div>
+    </dialog>
+
+    <!-- carrossel de screenshots: abre por cima do popup de detalhes -->
+    <dialog id="modal-galeria" class="modal modal-galeria" aria-label="Screenshots">
+        <div class="galeria-topo">
+            <span id="galeria-contador" class="galeria-contador" aria-live="polite"></span>
+            <a id="galeria-original" class="galeria-original" target="_blank" rel="noopener">Abrir original ↗</a>
+            <button type="button" class="botao-fechar galeria-fechar" id="botao-fechar-galeria" aria-label="Fechar">✕</button>
+        </div>
+        <div class="galeria-palco" id="galeria-palco">
+            <button type="button" class="galeria-seta anterior" id="galeria-anterior" aria-label="Screenshot anterior">‹</button>
+            <img id="galeria-imagem" class="galeria-imagem" alt="">
+            <button type="button" class="galeria-seta proxima" id="galeria-proxima" aria-label="Próxima screenshot">›</button>
+        </div>
+        <ol id="galeria-miniaturas" class="galeria-miniaturas"></ol>
+    </dialog>
+
+    <footer class="rodape">
+        <div class="rodape-conteudo">
+            <p>
+                Biblioteca de Jogos · feito com Java, Spring Boot e JavaScript
+            </p>
+            <p>
+                Dados fornecidos pela <a href="https://rawg.io" target="_blank" rel="noopener">RAWG</a> ·
+                <a href="https://github.com/willolvra/Projeto-Jogos" target="_blank" rel="noopener">Código no GitHub</a>
+            </p>
+        </div>
+    </footer>
 </body>
 </html>

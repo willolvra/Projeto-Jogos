@@ -4,6 +4,7 @@ import com.jogos.jogosProjeto.dto.BuscaJogoDTO;
 import com.jogos.jogosProjeto.dto.JogosDTO;
 import com.jogos.jogosProjeto.service.JogosService;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class JogosController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<String> adicionarJogo(@RequestBody BuscaJogoDTO busca){
+    public ResponseEntity<String> adicionarJogo(@RequestBody @Valid BuscaJogoDTO busca){
         servico.adicionarJogo(busca);
         return ResponseEntity.ok("Deu certo!");
     }

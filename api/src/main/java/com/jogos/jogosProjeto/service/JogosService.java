@@ -1,6 +1,8 @@
 package com.jogos.jogosProjeto.service;
 
 import com.jogos.jogosProjeto.dto.*;
+import com.jogos.jogosProjeto.exception.JogoJaCadastradoException;
+import com.jogos.jogosProjeto.exception.JogoNaoEncontradoException;
 import com.jogos.jogosProjeto.model.Dev;
 import com.jogos.jogosProjeto.model.Genero;
 import com.jogos.jogosProjeto.model.Jogos;
@@ -11,11 +13,11 @@ import com.jogos.jogosProjeto.repository.JogosRepository;
 import com.jogos.jogosProjeto.repository.PlataformaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -53,18 +55,34 @@ public class JogosService {
                 .collect(Collectors.toList());
     }
 
+    private JogoNaoEncontradoException naoEncontradoNaRawg(String buscado) {
+        return new JogoNaoEncontradoException("Jogo \"" + buscado + "\" não encontrado na RAWG. Tente o nome completo (ex.: the witcher 3 wild hunt).");
+    }
+
     public void adicionarJogo(BuscaJogoDTO jogo) {
-        var buscado = jogo.nome();
-        var json = consumoApi.obterDados(ENDERECO + buscado.trim().replace(" ", "-") + "?key=" + API_KEY);
+        var buscado = jogo.nome().trim();
+        // codifica o slug para que caracteres como ?, # e & não quebrem a URL
+        var slug = URLEncoder.encode(buscado.replaceAll("\\s+", "-"), StandardCharsets.UTF_8);
+        var json = consumoApi.obterDados(ENDERECO + slug + "?key=" + API_KEY);
+        if (json == null) {
+            throw naoEncontradoNaRawg(buscado);
+        }
 
         RedirecionamentoDTO redirecionamento = converteDados.obterDados(json, RedirecionamentoDTO.class);
         if (Boolean.TRUE.equals(redirecionamento.redirect())) {
-            json = consumoApi.obterDados(ENDERECO + redirecionamento.slug() + "?key=" + API_KEY);
+            json = consumoApi.obterDados(ENDERECO + URLEncoder.encode(redirecionamento.slug(), StandardCharsets.UTF_8) + "?key=" + API_KEY);
+            if (json == null) {
+                throw naoEncontradoNaRawg(buscado);
+            }
         }
 
         JogosDTO dados = converteDados.obterDados(json, JogosDTO.class);
         if (dados.name() == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Jogo não encontrado: " + buscado);
+            throw naoEncontradoNaRawg(buscado);
+        }
+        // compara pelo nome oficial da RAWG, já que "the witcher 3" e "The Witcher 3: Wild Hunt" são o mesmo jogo
+        if (jogosRepository.existsByNomeIgnoreCase(dados.name())) {
+            throw new JogoJaCadastradoException(dados.name());
         }
         Jogos jogos = new Jogos(dados.name(), dados.data(), dados.avaliacao(), dados.poster());
 
@@ -123,7 +141,7 @@ public class JogosService {
     @Transactional
     public void excluirJogo(Long id) {
         if (!jogosRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Jogo não encontrado: " + id);
+            throw new JogoNaoEncontradoException("Esse jogo já não existe mais (id " + id + ").");
         }
         jogosRepository.deleteById(id);
     }

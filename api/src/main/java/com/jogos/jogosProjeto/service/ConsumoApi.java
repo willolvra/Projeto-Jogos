@@ -1,5 +1,7 @@
 package com.jogos.jogosProjeto.service;
 
+import com.jogos.jogosProjeto.exception.RawgIndisponivelException;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -21,6 +23,15 @@ public class ConsumoApi {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
+        }
+
+        // 404 é um resultado esperado (jogo não existe); quem chama decide o que fazer com o null
+        int status = response.statusCode();
+        if (status == 404) {
+            return null;
+        }
+        if (status < 200 || status >= 300) {
+            throw new RawgIndisponivelException(status);
         }
 
         String json = response.body();

@@ -1,9 +1,20 @@
 const URL_BASE = "http://localhost:8081";
 
+// a API responde erros no formato ProblemDetail: { "status": 404, "detail": "mensagem" }
+async function lancarErro(resposta, mensagemPadrao) {
+    let detalhe = null;
+    try {
+        detalhe = (await resposta.json()).detail;
+    } catch {
+        // corpo vazio ou que não é JSON: fica com a mensagem padrão
+    }
+    throw new Error(detalhe ?? `${mensagemPadrao} (${resposta.status}).`);
+}
+
 export async function listarJogos() {
     const resposta = await fetch(`${URL_BASE}/jogos`);
     if (!resposta.ok) {
-        throw new Error(`Erro ao listar jogos (${resposta.status})`);
+        await lancarErro(resposta, "Erro ao listar jogos");
     }
     return resposta.json();
 }
@@ -14,21 +25,15 @@ export async function adicionarJogo(nome) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nome })
     });
-    if (resposta.status === 404) {
-        throw new Error("Jogo não encontrado na RAWG. Tente o nome completo (ex.: the witcher 3 wild hunt).");
-    }
     if (!resposta.ok) {
-        throw new Error(`Erro ao adicionar jogo (${resposta.status}).`);
+        await lancarErro(resposta, "Erro ao adicionar jogo");
     }
     return resposta.text();
 }
 
 export async function excluirJogo(id) {
     const resposta = await fetch(`${URL_BASE}/jogos/${id}`, { method: "DELETE" });
-    if (resposta.status === 404) {
-        throw new Error("Esse jogo já não existe mais.");
-    }
     if (!resposta.ok) {
-        throw new Error(`Erro ao excluir jogo (${resposta.status}).`);
+        await lancarErro(resposta, "Erro ao excluir jogo");
     }
 }
